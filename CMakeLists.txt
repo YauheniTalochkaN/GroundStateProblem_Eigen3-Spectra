@@ -2,9 +2,12 @@ cmake_minimum_required(VERSION 3.20)
 
 #----------------------------------------------------------------------------------------------------------------------
 
+project(main)
+
+#----------------------------------------------------------------------------------------------------------------------
+
 set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CUDA_HOST_COMPILER "g++")
 
 #----------------------------------------------------------------------------------------------------------------------
 
@@ -18,7 +21,7 @@ find_package(Eigen3 REQUIRED)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS} -Wall -O2 -fPIC -ffast-math -mavx")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -fPIC -ffast-math -mavx")
 
 #----------------------------------------------------------------------------------------------------------------------
 
@@ -28,8 +31,8 @@ file(GLOB main_source ${PROJECT_SOURCE_DIR}/main.cc)
 #----------------------------------------------------------------------------------------------------------------------
 
 add_executable(main ${main_source} ${sources})
-target_include_directories(main PRIVATE ${PROJECT_SOURCE_DIR}/include ${EIGEN3_INCLUDE_DIR})
-target_link_libraries(main PRIVATE OpenMP::OpenMP_CXX)
+target_include_directories(main PUBLIC ${PROJECT_SOURCE_DIR}/include ${EIGEN3_INCLUDE_DIR})
+target_link_libraries(main PUBLIC OpenMP::OpenMP_CXX)
 
 #----------------------------------------------------------------------------------------------------------------------
 

@@ -46,8 +46,8 @@ inline int get_flipped_state(int state, int i, int j)
 
 void build_sparse_hamiltonian(int N, int dim,   
                               const std::vector<Edge>& edges,
-                              Eigen::SparseMatrix<complexType, Eigen::ColMajor>& H1z,
-                              Eigen::SparseMatrix<complexType, Eigen::ColMajor>& H) 
+                              Eigen::SparseMatrix<complexType, Eigen::ColMajor, int64_t>& H1z,
+                              Eigen::SparseMatrix<complexType, Eigen::ColMajor, int64_t>& H) 
 {       
     for (int state = 0; state < dim; ++state) 
     {
@@ -59,7 +59,7 @@ void build_sparse_hamiltonian(int N, int dim,
 
             complexType sign_i = (bit_i == 0) ? complexType(1.0, 0.0) : complexType(-1.0, 0.0);
 
-            /* if(flipped_state < state)
+            /* if(flipped_state > state)
             {
                 H1x.coeffRef(flipped_state, state) += complexType(1.0, 0.0);
 
@@ -86,7 +86,7 @@ void build_sparse_hamiltonian(int N, int dim,
             complexType sign_i = (bit_i == 0) ? complexType(1.0, 0.0) : complexType(-1.0, 0.0);
             complexType sign_j = (bit_j == 0) ? complexType(1.0, 0.0) : complexType(-1.0, 0.0);
             
-            if(flipped_state < state)
+            if(flipped_state > state)
             {
                 H.coeffRef(flipped_state, state) += complexType(Jx, 0.0);
 
@@ -151,8 +151,8 @@ int main(int argc, char* argv[])
 
     std::cout << "Building Hamiltonian...\n";
 
-    Eigen::SparseMatrix<complexType, Eigen::ColMajor> H1z(DIM, DIM);
-    Eigen::SparseMatrix<complexType, Eigen::ColMajor> H(DIM, DIM);
+    Eigen::SparseMatrix<complexType, Eigen::ColMajor, int64_t> H1z(DIM, DIM);
+    Eigen::SparseMatrix<complexType, Eigen::ColMajor, int64_t> H(DIM, DIM);
 
     build_sparse_hamiltonian(N, DIM, Jedges, H1z, H);
 
@@ -172,16 +172,16 @@ int main(int argc, char* argv[])
 
     for(size_t iter = 0; iter < num_iters; ++iter)
     {
-        std::cout << "Iteration: " << iter + 1UL << "/" << num_iters << "\r";
+        std::cout << "Iteration: " << iter + 1UL << "/" << num_iters << "\n";
         
         if(iter > 0) 
         {
             H -= complexType(dBz * gmuB, 0.0) * H1z;
         }
 
-        Spectra::SparseHermMatProd<complexType, Eigen::Upper, Eigen::ColMajor> opH(H);
+        Spectra::SparseHermMatProd<complexType, Eigen::Lower, Eigen::ColMajor, int64_t> opH(H);
 
-        Spectra::HermEigsSolver<Spectra::SparseHermMatProd<complexType, Eigen::Upper, Eigen::ColMajor>> eigsH(opH, 1, 10);
+        Spectra::HermEigsSolver<Spectra::SparseHermMatProd<complexType, Eigen::Lower, Eigen::ColMajor, int64_t>> eigsH(opH, 1, 10);
     
         eigsH.init();
         int nconv = eigsH.compute(Spectra::SortRule::SmallestAlge);
